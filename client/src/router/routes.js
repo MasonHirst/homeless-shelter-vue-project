@@ -20,9 +20,9 @@ const routes = [
         component: () => import('pages/RegisterPage.vue'),
       },
       {
-        path: 'guests',
-        name: 'guests',
-        component: () => import('pages/GuestsPage.vue'),
+        path: 'residents',
+        name: 'residents',
+        component: () => import('pages/ResidentsPage.vue'),
       },
       {
         path: 'schedule',

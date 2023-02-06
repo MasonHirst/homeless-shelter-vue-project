@@ -10,9 +10,9 @@
       to: {name: 'home'},
     },
     {
-      title: 'Guests',
+      title: 'Residents',
       icon: 'group',
-      to: {name: 'guests'},
+      to: {name: 'residents'},
     },
     {
       title: 'Schedule',
