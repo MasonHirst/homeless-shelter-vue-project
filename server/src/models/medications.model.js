@@ -1,17 +1,13 @@
-// residents-model.js - A mongoose model
+// medications-model.js - A mongoose model
 // 
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
-  const modelName = 'residents';
+  const modelName = 'medications';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    name: { type: String, required: true },
-    age: { type: Date, required: true },
-    gender: { type: String, required: true },
-    
-    medications: { type: [String] }
+    medication: { type: String, required: true }
   }, {
     timestamps: true
   });
