@@ -15,7 +15,12 @@
 
 
 <template>
-  <q-page style="" class="q-pa-md">
+  <q-page class="q-pa-md">
     <Schedule />
   </q-page>
 </template>
+
+
+<style scoped>
+  
+</style>
