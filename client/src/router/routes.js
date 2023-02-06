@@ -19,6 +19,16 @@ const routes = [
         name: 'register',
         component: () => import('pages/RegisterPage.vue'),
       },
+      {
+        path: 'guests',
+        name: 'guests',
+        component: () => import('pages/GuestsPage.vue'),
+      },
+      {
+        path: 'schedule',
+        name: 'schedule',
+        component: () => import('pages/SchedulePage.vue'),
+      },
       // {
       //   path: 'logout',
       //   name: 'logout',

@@ -1,8 +1,3 @@
-<template>
-  <q-page id="LoginPage" class="flex flex-center">
-    <login></login>
-  </q-page>
-</template>
 
 <script>
   import {defineComponent} from 'vue';
@@ -15,6 +10,14 @@
     },
   });
 </script>
+
+
+  <template>
+    <q-page id="LoginPage" class="flex flex-center">
+      <login></login>
+    </q-page>
+  </template>
+
 
 <style scoped lang="scss">
 </style>

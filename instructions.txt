@@ -1,0 +1,30 @@
+homeless-shelter
+
+Background
+You have been hired by a homeless shelter. They need a program to keep track of all the shelter's residents. The program should contain information about each person, and when they are checked in or out. No one is allowed to stay for longer than a week. If someone has checked out within the last 30 days, they cannot be checked in.
+
+Purpose
+This project is meant to introduce programmers to Create, Read, Update, and Destroy (CRUD) operations, as well as an introduction and review of all frameworks. This will allow programmers to connect the frontend to the backend of a program. This project will expound upon previously given understandings of Quasar, Feathers, Vue, and Vuex. It will also introduce Feathers Vuex. Among these frameworks, programmers will be taught about forms, routing, hooks, relationships, relateHooks, makeFindPaginateMixin, fastJoin, and more.
+
+Getting Started
+You need to write a program that keeps track of the following information:
+
+People
+Names
+Ages
+Any illnesses they have
+Any medications they use
+Any special notes for each person
+When they have checked in
+When or if they have checked out
+
+
+Requirements
+
+Create a service(s) that stores this information
+Add a feature to create and edit people
+Allow users to search through people
+Add a feature to your app that will check in and out a person
+Allow users to search through a person's check in(s) and out(s)
+Display who needs to be checked out
+Display who cannot be checked in

@@ -1,10 +1,13 @@
+
 <script>
   import { defineComponent } from 'vue';
 
   export default defineComponent({
-    name: 'IndexPage',
+    name: 'ScheduleComponent',
     components: {},
+    props: {},
     setup() {
+
       return {};
     },
   });
@@ -12,9 +15,10 @@
 
 
 <template>
-  <q-page style="" class="q-pa-md">
-    <h1 style="" >Home</h1>
-    
-  </q-page>
+    <h1>Schedule Component</h1>
 </template>
 
+
+<style scoped>
+
+</style>
