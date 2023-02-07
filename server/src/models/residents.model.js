@@ -8,9 +8,10 @@ module.exports = function (app) {
   const { Schema } = mongooseClient;
   const schema = new Schema({
     name: { type: String, required: true },
-    age: { type: Date, required: true },
-    gender: { type: String, required: true },
-    
+    birthday: { type: Number, required: true },
+    checkinDate: { type: Date },
+    checkoutDate: { type: Date },
+    illnesses: { type: [String] },    
     medications: { type: [String] }
   }, {
     timestamps: true

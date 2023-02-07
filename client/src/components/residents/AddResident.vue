@@ -1,5 +1,5 @@
 <script>
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, inject } from 'vue';
   import { useQuasar } from 'quasar';
 
   export default defineComponent({
@@ -7,17 +7,20 @@
     components: {},
     props: {},
     setup() {
+      let $feathersClient = inject('$feathersClient');
       let options = ['Male', 'Female'];
-      let model = ref(null);
+      let genderInput = ref(null);
       let nameInput = ref(null);
-      let ageInput = ref(null);
+      let birthdayInput = ref(null);
       let illnessesInput = ref(null);
       let medicationsInput = ref(null);
       let notesInput = ref(null);
       const proxyDate = ref(formatDate(new Date()));
       const date = ref(formatDate(new Date()));
       const proxyDate2 = ref(formatDate(new Date()));
-      const date2 = ref(lastMonthDate(new Date()));
+      const date2 = ref(lastMonthDate(new Date(), 1));
+      const proxyDate3 = ref(formatDate(new Date()));
+      const date3 = ref(lastMonthDate(new Date(), 480));
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -28,9 +31,9 @@
         });
       }
 
-      function lastMonthDate(date) {
+      function lastMonthDate(date, sub) {
         const newDate = new Date(date);
-        newDate.setMonth(newDate.getMonth() - 1);
+        newDate.setMonth(newDate.getMonth() - sub);
 
         const options = {
           day: 'numeric',
@@ -38,19 +41,28 @@
           year: 'numeric'
         };
 
-        return newDate.toLocaleDateString('en-US', options);
+        return newDate.toLocaleDateString('en-GB', options);
       }
 
+      // function to submit a user to the database
       function handleSubmit() {
-        console.log('handleSubmit function started');
+        $feathersClient.service('residents').create({
+
+        })
+          .then((res) => {
+            console.log('bruh', res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
 
       return {
         useQuasar,
         options,
-        model,
         nameInput,
-        ageInput,
+        birthdayInput,
+        genderInput,
         illnessesInput,
         medicationsInput,
         notesInput,
@@ -58,6 +70,8 @@
         proxyDate,
         date2,
         proxyDate2,
+        date3,
+        proxyDate3,
         handleSubmit,
 
         updateProxy() {
@@ -72,19 +86,16 @@
         save2() {
           date2.value = formatDate(proxyDate2.value);
         },
+        updateProxy3() {
+          proxyDate3.value = formatDate(date3.value);
+        },
+        save3() {
+          date3.value = formatDate(proxyDate3.value);
+        },
 
         createValue(val, done) {
-          // specific logic to eventually call done(...) -- or not
           done(val, 'add-unique');
-
-          // done callback has two optional parameters:
-          //  - the value to be added
-          //  - the behavior (same values of new-value-mode prop,
-          //    and when it is specified it overrides that prop –
-          //    if it is used); default behavior (if not using
-          //    new-value-mode) is to add the value even if it would
-          //    be a duplicate
-        }
+        },
       };
     },
   });
@@ -108,9 +119,25 @@
 
               <q-input standout="bg-secondary text-white" v-model="nameInput" label="Name" />
 
-              <q-input standout="bg-secondary text-white" v-model="ageInput" label="Age" />
+              <div class="input-datepicker-div">
+                <q-input standout="bg-secondary text-white" v-model="date3" label="Birthday" />
+                <!-- Start of datepicker section -->
+                <div class="q-pa-md datepicker-btn">
+                  <q-btn icon="event" round color="primary">
+                    <q-popup-proxy @before-show="updateProxy3" cover transition-show="scale" transition-hide="scale">
+                      <q-date default-year-month="1983/02" v-model="proxyDate3">
+                        <div class="row items-center justify-end q-gutter-sm">
+                          <q-btn label="Cancel" color="primary" flat v-close-popup />
+                          <q-btn label="OK" color="primary" flat @click="save3" v-close-popup />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-btn>
+                </div>
+                <!-- End of datepicker section -->
+              </div>
 
-              <q-select standout="bg-secondary text-white" v-model="model" :options="options" label="Gender" />
+              <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
 
             </div>
 

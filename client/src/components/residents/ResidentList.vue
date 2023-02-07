@@ -13,7 +13,6 @@
       $feathersClient.service('residents').find({})
         .then((res) => {
           residents.value = res.data;
-          console.log('residents:', residents.value);
         })
         .catch((err) => {
           console.log(err);
