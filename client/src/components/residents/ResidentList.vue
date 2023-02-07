@@ -32,7 +32,7 @@
 <template>
   <div>
     <h1>Resident List</h1>
-    <h3 v-for="person in residentList" :key="person.id">{{ person.text }}</h3>
+    <h3 v-for="person in residentList" :key="person.id">{{ person.name }}</h3>
   </div>
 </template>
 

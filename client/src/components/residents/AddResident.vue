@@ -1,6 +1,7 @@
 <script>
   import { defineComponent, ref, inject } from 'vue';
   import { useQuasar } from 'quasar';
+  import Swal from 'sweetalert2';
 
   export default defineComponent({
     name: 'AddResident',
@@ -11,7 +12,6 @@
       let options = ['Male', 'Female'];
       let genderInput = ref(null);
       let nameInput = ref(null);
-      let birthdayInput = ref(null);
       let illnessesInput = ref(null);
       let medicationsInput = ref(null);
       let notesInput = ref(null);
@@ -20,7 +20,7 @@
       const proxyDate2 = ref(formatDate(new Date()));
       const date2 = ref(lastMonthDate(new Date(), 1));
       const proxyDate3 = ref(formatDate(new Date()));
-      const date3 = ref(lastMonthDate(new Date(), 480));
+      const date3 = ref(null);
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -44,24 +44,46 @@
         return newDate.toLocaleDateString('en-GB', options);
       }
 
-      // function to submit a user to the database
-      function handleSubmit() {
-        $feathersClient.service('residents').create({
-
-        })
-          .then((res) => {
-            console.log('bruh', res.data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      function normalizeDate(dateStr) {
+        const [day, month, year] = dateStr.split(' ');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return new Date(year, months.indexOf(month), day);
       }
 
+
+
+      // function to submit a user to the database
+      function handleSubmit() {
+        if (normalizeDate(date2.value) > normalizeDate(lastMonthDate(date.value, 1))) {
+          Swal.fire({
+            title: 'Resident cannot be checked in',
+            text: 'This resident has checked out in the last month',
+            icon: 'warning',
+          });
+        } else {
+          $feathersClient.service('residents').create({
+            name: nameInput.value,
+            birthday: date3.value,
+            gender: genderInput.value,
+            checkinDate: date.value,
+            checkoutDate: date2.value,
+            illnesses: illnessesInput.value,
+            medications: medicationsInput.value,
+            notes: notesInput.value,
+          })
+            .then((res) => {
+              console.log('bruh, request was like, sent and stuff', res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }
+      
       return {
         useQuasar,
         options,
         nameInput,
-        birthdayInput,
         genderInput,
         illnessesInput,
         medicationsInput,
@@ -73,6 +95,7 @@
         date3,
         proxyDate3,
         handleSubmit,
+        normalizeDate,
 
         updateProxy() {
           proxyDate.value = formatDate(date.value);
@@ -117,15 +140,15 @@
 
             <div class="top-inputs-container">
 
-              <q-input standout="bg-secondary text-white" v-model="nameInput" label="Name" />
+              <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="nameInput" label="Name" />
 
               <div class="input-datepicker-div">
-                <q-input standout="bg-secondary text-white" v-model="date3" label="Birthday" />
+                <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="date3" label="Birthday" />
                 <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
                     <q-popup-proxy @before-show="updateProxy3" cover transition-show="scale" transition-hide="scale">
-                      <q-date default-year-month="1983/02" v-model="proxyDate3">
+                      <q-date default-view="Years" default-year-month="1983/02" v-model="proxyDate3">
                         <div class="row items-center justify-end q-gutter-sm">
                           <q-btn label="Cancel" color="primary" flat v-close-popup />
                           <q-btn label="OK" color="primary" flat @click="save3" v-close-popup />
@@ -137,11 +160,11 @@
                 <!-- End of datepicker section -->
               </div>
 
-              <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
-
+              
             </div>
-
+            
             <div class="date-inputs-div">
+              <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
 
               <div class="input-datepicker-div">
                 <q-input standout="bg-secondary text-white" v-model="date" label="Check-in date" />
@@ -162,7 +185,7 @@
               </div>
 
               <div class="input-datepicker-div">
-                <q-input standout="bg-secondary text-white" v-model="date2" label="Most recent checkout" />
+                <q-input standout="bg-secondary text-white" v-model="date2" label="Last checkout" />
                 <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
@@ -223,10 +246,12 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  position: relative;
+  top: 5px;
 }
 
 .top-inputs-container>* {
-  min-width: 30%;
+  min-width: 47%;
 }
 
 .date-badge {
@@ -244,11 +269,15 @@
 .datepicker-btn {
   position: absolute;
   top: -9px;
-  right: 0px;
+  right: -2px;
 }
 
 .date-inputs-div {
   display: flex;
   gap: 10px;
+  justify-content: space-between;
+}
+.date-inputs-div > * {
+  min-width: 30%;
 }
 </style>
