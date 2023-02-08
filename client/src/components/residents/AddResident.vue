@@ -21,6 +21,15 @@
       const date2 = ref(lastMonthDate(new Date(), 1));
       const proxyDate3 = ref(formatDate(new Date()));
       const date3 = ref(null);
+      // const illnessOptions = ref({});
+
+      $feathersClient.service('illnesses').find({})
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -143,7 +152,7 @@
               <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="nameInput" label="Name" />
 
               <div class="input-datepicker-div">
-                <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="date3" label="Birthday" />
+                <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="date3" mask="## Aaa ####" hint="Ex: 08 Nov 1987" label="Birthday" />
                 <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
@@ -204,7 +213,7 @@
             </div>
 
             <q-select label="Add illnesses" standout="bg-secondary text-white" v-model="illnessesInput" use-input
-              use-chips multiple hide-dropdown-icon input-debounce="0" @new-value="createValue" style="width: 250px" />
+              use-chips multiple hide-dropdown-icon input-debounce="0" :options="illnessOptions" @new-value="createValue" style="width: 250px" />
 
             <q-select label="Add medications" standout="bg-secondary text-white" v-model="medicationsInput" use-input
               use-chips multiple hide-dropdown-icon input-debounce="0" @new-value="createValue" style="width: 250px" />

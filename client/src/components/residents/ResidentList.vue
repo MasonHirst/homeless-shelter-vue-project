@@ -6,9 +6,17 @@
     components: {},
     props: {},
     setup() {
+      let $feathersClient = inject('$feathersClient');
       let residents = ref([]);
 
-      let $feathersClient = inject('$feathersClient');
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+      }
 
       $feathersClient.service('residents').find({})
         .then((res) => {
@@ -23,6 +31,7 @@
       return {
         residentList,
         residents,
+        formatDate,
       };
     },
   });
@@ -32,7 +41,7 @@
 <template>
   <div>
     <h1>Resident List</h1>
-    <h3 v-for="person in residentList" :key="person.id">{{ person.name }}</h3>
+    <h3 v-for="person in residentList" :key="person.id">{{ person.name + ', ' + formatDate(person.birthday) }}</h3>
   </div>
 </template>
 
