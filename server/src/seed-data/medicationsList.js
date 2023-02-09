@@ -1,7 +1,5 @@
 const medications = [
   "Acetaminophen (Tylenol)",
-  "Ibuprofen (Advil)",
-  "Aspirin",
   "Loratadine (Claritin)",
   "Cetirizine (Zyrtec)",
   "Fexofenadine (Allegra)",
@@ -40,7 +38,6 @@ const medications = [
   "Diclofenac (Voltaren)",
   "Indomethacin (Indocin)",
   "Ibuprofen (Advil)",
-  "Aspirin",
   "Acetaminophen (Tylenol)",
   "Metformin (Glucophage)",
   "Glyburide (Micronase)",

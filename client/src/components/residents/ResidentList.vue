@@ -1,5 +1,5 @@
 <script>
-  import { defineComponent, ref, inject, computed } from 'vue';
+  import { defineComponent, ref, inject } from 'vue';
 
   export default defineComponent({
     name: 'ResidentList',
@@ -26,10 +26,7 @@
           console.log(err);
         });
 
-      const residentList = computed(() => residents.value);
-
       return {
-        residentList,
         residents,
         formatDate,
       };
@@ -41,7 +38,7 @@
 <template>
   <div>
     <h1>Resident List</h1>
-    <h3 v-for="person in residentList" :key="person.id">{{ person.name + ', ' + formatDate(person.birthday) }}</h3>
+    <h3 v-for="person in residents" :key="person.id">{{ person.name + ' - ' + formatDate(person.birthday) }}</h3>
   </div>
 </template>
 

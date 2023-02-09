@@ -29,6 +29,11 @@ const routes = [
         name: 'schedule',
         component: () => import('pages/SchedulePage.vue'),
       },
+      {
+        path: 'residents/new',
+        name: 'newResident',
+        component: () => import('pages/NewResidentPage.vue'),
+      },
       // {
       //   path: 'logout',
       //   name: 'logout',

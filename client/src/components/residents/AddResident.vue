@@ -1,5 +1,6 @@
 <script>
   import { defineComponent, ref, inject } from 'vue';
+  import { useRouter } from 'vue-router';
   import { useQuasar } from 'quasar';
   import Swal from 'sweetalert2';
 
@@ -9,6 +10,7 @@
     props: {},
     setup() {
       let $feathersClient = inject('$feathersClient');
+      let $router = useRouter();
       let options = ['Male', 'Female'];
       let genderInput = ref(null);
       let nameInput = ref(null);
@@ -18,25 +20,20 @@
       const proxyDate = ref(formatDate(new Date()));
       const date = ref(formatDate(new Date()));
       const proxyDate2 = ref(formatDate(new Date()));
-      const date2 = ref(lastMonthDate(new Date(), 1));
+      const date2 = ref();
       const proxyDate3 = ref(formatDate(new Date()));
       const date3 = ref(null);
-      // const illnessOptions = ref({});
-
-      $feathersClient.service('illnesses').find({})
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      const illnessOptions = ref([]);
+      const filterOptions = ref([]);
+      const medicationOptions = ref([]);
+      const medicationFilterOptions = ref([]);
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-GB', {
           day: 'numeric',
           month: 'short',
-          year: 'numeric'
+          year: 'numeric',
         });
       }
 
@@ -59,36 +56,83 @@
         return new Date(year, months.indexOf(month), day);
       }
 
-
-
       // function to submit a user to the database
       function handleSubmit() {
-        if (normalizeDate(date2.value) > normalizeDate(lastMonthDate(date.value, 1))) {
-          Swal.fire({
-            title: 'Resident cannot be checked in',
-            text: 'This resident has checked out in the last month',
-            icon: 'warning',
-          });
-        } else {
-          $feathersClient.service('residents').create({
-            name: nameInput.value,
-            birthday: date3.value,
-            gender: genderInput.value,
-            checkinDate: date.value,
-            checkoutDate: date2.value,
-            illnesses: illnessesInput.value,
-            medications: medicationsInput.value,
-            notes: notesInput.value,
-          })
-            .then((res) => {
-              console.log('bruh, request was like, sent and stuff', res.data);
-            })
-            .catch((err) => {
-              console.log(err);
+        if (date2.value) {
+          if (normalizeDate(date2.value) > normalizeDate(lastMonthDate(date.value, 1))) {
+            Swal.fire({
+              title: 'Resident cannot be checked in',
+              text: 'This resident has checked out in the last month',
+              icon: 'warning',
             });
+            return;
+          }
         }
+
+        $feathersClient.service('residents').create({
+          name: nameInput.value,
+          birthday: date3.value,
+          gender: genderInput.value,
+          checkinDate: date.value,
+          checkoutDate: date2.value,
+          illnesses: illnessesInput.value,
+          medications: medicationsInput.value,
+          notes: notesInput.value,
+        })
+          .then((res) => {
+            console.log('request was like, sent and stuff', res.data);
+            $router.push('/residents');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+
       }
-      
+
+      $feathersClient.service('illnesses').find({})
+        .then((res) => {
+          illnessOptions.value = res.data[0].illness;
+        })
+        .catch((err) => {
+          console.log('ERROR IN THE ILLNESSES DATA FETCH', err);
+        });
+
+      $feathersClient.service('medications').find({})
+        .then(res => {
+          medicationOptions.value = res.data[0].medication;
+        })
+        .catch(err => {
+          console.log('ERROR IN THE MEDICATIONS DATA FETCH', err);
+        });
+
+      function filterFn(val, update) {
+        update(() => {
+          if (val === '') {
+            filterOptions.value = illnessOptions.value;
+          }
+          else {
+            const needle = val.toLowerCase();
+            filterOptions.value = illnessOptions.value.filter(
+              v => v.toLowerCase().indexOf(needle) > -1
+            );
+          }
+        });
+      }
+
+      function medicationsFilterFn(val, update) {
+        update(() => {
+          if (val === '') {
+            medicationFilterOptions.value = medicationOptions.value;
+          }
+          else {
+            const needle = val.toLowerCase();
+            medicationFilterOptions.value = medicationOptions.value.filter(
+              v => v.toLowerCase().indexOf(needle) > -1
+            );
+          }
+        });
+      }
+
       return {
         useQuasar,
         options,
@@ -105,6 +149,11 @@
         proxyDate3,
         handleSubmit,
         normalizeDate,
+        filterFn,
+        medicationsFilterFn,
+        filterOptions,
+        medicationFilterOptions,
+        medicationOptions,
 
         updateProxy() {
           proxyDate.value = formatDate(date.value);
@@ -130,16 +179,17 @@
         },
       };
     },
+
   });
 </script>
 
 
 <template>
-  <div>
+  <div class="add-res-div">
     <q-card id="Register" class="flex column">
-      <q-toolbar class="bg-primary text-white">
+      <q-toolbar style="" class="bg-primary text-white">
         <q-toolbar-title>
-          Check in a Resident
+          Check in a new Resident
         </q-toolbar-title>
       </q-toolbar>
 
@@ -149,10 +199,12 @@
 
             <div class="top-inputs-container">
 
-              <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="nameInput" label="Name" />
+              <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white"
+                v-model="nameInput" label="Name" />
 
               <div class="input-datepicker-div">
-                <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white" v-model="date3" mask="## Aaa ####" hint="Ex: 08 Nov 1987" label="Birthday" />
+                <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white"
+                  v-model="date3" hint="Ex: 08 Nov 1987" label="Birthday" />
                 <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
@@ -169,15 +221,14 @@
                 <!-- End of datepicker section -->
               </div>
 
-              
+
             </div>
-            
-            <div class="date-inputs-div">
+
+            <!-- <div class="date-inputs-div">
               <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
 
               <div class="input-datepicker-div">
                 <q-input standout="bg-secondary text-white" v-model="date" label="Check-in date" />
-                <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
                     <q-popup-proxy @before-show="updateProxy" cover transition-show="scale" transition-hide="scale">
@@ -190,12 +241,10 @@
                     </q-popup-proxy>
                   </q-btn>
                 </div>
-                <!-- End of datepicker section -->
               </div>
 
               <div class="input-datepicker-div">
                 <q-input standout="bg-secondary text-white" v-model="date2" label="Last checkout" />
-                <!-- Start of datepicker section -->
                 <div class="q-pa-md datepicker-btn">
                   <q-btn icon="event" round color="primary">
                     <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
@@ -208,15 +257,17 @@
                     </q-popup-proxy>
                   </q-btn>
                 </div>
-                <!-- End of datepicker section -->
               </div>
-            </div>
+            </div> -->
 
-            <q-select label="Add illnesses" standout="bg-secondary text-white" v-model="illnessesInput" use-input
-              use-chips multiple hide-dropdown-icon input-debounce="0" :options="illnessOptions" @new-value="createValue" style="width: 250px" />
 
-            <q-select label="Add medications" standout="bg-secondary text-white" v-model="medicationsInput" use-input
-              use-chips multiple hide-dropdown-icon input-debounce="0" @new-value="createValue" style="width: 250px" />
+            <q-select label="Add illnesses" standout="bg-secondary text-white" v-model="illnessesInput" use-input use-chips multiple
+              input-debounce="0" @new-value="createValue" :options="filterOptions" @filter="filterFn"
+              style="width: 250px" />
+
+            <q-select label="Add medications" standout="bg-secondary text-white" v-model="medicationsInput" use-input use-chips multiple
+              input-debounce="0" @new-value="createValue" :options="medicationFilterOptions"
+              @filter="medicationsFilterFn" style="width: 250px" />
 
             <q-input standout="bg-secondary text-white" autogrow v-model="notesInput" label="Notes" />
 
@@ -227,7 +278,9 @@
       <q-separator />
 
       <q-card-actions>
-        <q-btn flat dense label="cancel" />
+        <RouterLink style="text-decoration: none; height: 23px;" to="/residents">
+          <q-btn flat dense style="color: black;" label="cancel" />
+        </RouterLink>
         <q-space />
 
         <q-btn color="primary" @click="handleSubmit">
@@ -241,13 +294,17 @@
 
 
 <style scoped>
+.add-res-div {
+  margin-top: 25px;
+  min-width: 600px;
+}
 .inputs-container {
   display: flex;
   flex-direction: column;
 }
 
 .inputs-container>* {
-  min-width: 500px;
+  min-width: 100%;
 }
 
 .top-inputs-container {
@@ -278,7 +335,7 @@
 .datepicker-btn {
   position: absolute;
   top: -9px;
-  right: -2px;
+  right: -10px;
 }
 
 .date-inputs-div {
@@ -286,7 +343,8 @@
   gap: 10px;
   justify-content: space-between;
 }
-.date-inputs-div > * {
+
+.date-inputs-div>* {
   min-width: 30%;
 }
 </style>

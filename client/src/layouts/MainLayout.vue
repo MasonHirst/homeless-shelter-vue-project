@@ -56,7 +56,7 @@
                  />
   
           <q-toolbar-title>
-            Haven shelter
+            Haven Shelter
           </q-toolbar-title>
   
           <div>Quasar v{{ $q.version }}</div>

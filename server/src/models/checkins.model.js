@@ -1,18 +1,13 @@
-// residents-model.js - A mongoose model
+// checkins-model.js - A mongoose model
 // 
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
-  const modelName = 'residents';
+  const modelName = 'checkins';
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    name: { type: String, required: true },
-    birthday: { type: Date, required: true },
-    gender: { type: String, required: true },
-    illnesses: { type: [String] },
-    medications: { type: [String] },
-    notes: { type: [String] },
+    text: { type: String, required: true }
   }, {
     timestamps: true
   });
