@@ -13,6 +13,7 @@ module.exports = function (app) {
     illnesses: { type: [String] },
     medications: { type: [String] },
     notes: { type: [String] },
+    isStaying: { type: Boolean },
   }, {
     timestamps: true
   });

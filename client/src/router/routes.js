@@ -34,6 +34,11 @@ const routes = [
         name: 'newResident',
         component: () => import('pages/NewResidentPage.vue'),
       },
+      {
+        path: 'residents/profile/:id',
+        name: 'residentProfilePage',
+        component: () => import('pages/ResidentProfilePage.vue'),
+      },
       // {
       //   path: 'logout',
       //   name: 'logout',

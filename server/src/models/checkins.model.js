@@ -7,7 +7,10 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    text: { type: String, required: true }
+    residentId: { type: String, required: true },
+    checkinDate: { type: Date },
+    checkoutDate: { type: Date },
+    active: { type: Boolean },
   }, {
     timestamps: true
   });

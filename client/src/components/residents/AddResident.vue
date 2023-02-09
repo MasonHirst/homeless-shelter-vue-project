@@ -10,7 +10,7 @@
     props: {},
     setup() {
       let $feathersClient = inject('$feathersClient');
-      let $router = useRouter();
+      let router = useRouter();
       let options = ['Male', 'Female'];
       let genderInput = ref(null);
       let nameInput = ref(null);
@@ -73,20 +73,18 @@
           name: nameInput.value,
           birthday: date3.value,
           gender: genderInput.value,
-          checkinDate: date.value,
-          checkoutDate: date2.value,
           illnesses: illnessesInput.value,
           medications: medicationsInput.value,
           notes: notesInput.value,
+          isStaying: false,
         })
           .then((res) => {
-            console.log('request was like, sent and stuff', res.data);
-            $router.push('/residents');
+            console.log('request was like, sent and stuff', res._id);
+            router.push({name: 'residentProfilePage', params: { id: res._id }});
           })
           .catch((err) => {
             console.log(err);
           });
-
       }
 
       $feathersClient.service('illnesses').find({})
@@ -224,9 +222,9 @@
 
             </div>
 
-            <!-- <div class="date-inputs-div">
+            <!-- <div class="date-inputs-div"> -->
               <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
-
+ <!--
               <div class="input-datepicker-div">
                 <q-input standout="bg-secondary text-white" v-model="date" label="Check-in date" />
                 <div class="q-pa-md datepicker-btn">
