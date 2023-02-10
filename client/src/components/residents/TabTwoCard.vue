@@ -1,40 +1,17 @@
 <script>
-  import { ref, watch } from 'vue';
-
+  import { ref } from 'vue';
   export default {
-    props: { 
-      checkins: Array,
-      editTab: Boolean,
+    props: {
+
     },
-    setup(props) {
-      const stays = ref(props.checkins);
-      const editing = ref(false);
+    setup() {
+      
 
-      watch(() => props.checkins, () => {
-        stays.value = props.checkins;
-      });
-
-      function editHandler() {
-        
-      };
-
-      function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        });
-      }
-
-      return {
-        stays,
-        formatDate,
-        editing,
-        editHandler,
-      };
+      return {}
     },
-  };
+    methods: {},
+  }
+
 </script>
 
 
@@ -67,19 +44,5 @@
 
 <!-- add the scoped attribute to contain styles to this component only -->
 <style scoped>
-.faded {
-  opacity: .5;
-}
 
-.spacer-div {
-  height: 75px;
-}
-
-.gap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  padding: 5px;
-}
 </style>

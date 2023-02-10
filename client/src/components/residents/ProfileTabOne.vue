@@ -1,7 +1,10 @@
 <script>
   import { watch, ref } from 'vue';
   export default {
-    props: { resident: Object },
+    props: { 
+      resident: Object,
+      editTab: Boolean,
+    },
     setup(props) {
       const residentRef = ref(props.resident);
 

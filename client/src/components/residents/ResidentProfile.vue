@@ -14,9 +14,13 @@
       const resident = ref({});
       const age = ref(null);
       const isStaying = ref('');
-      const isLoading = ref(false);
+      const isLoading = ref(true);
       const checkins = ref({});
       const tab = ref('one');
+      const editTabOne = ref(false);
+      const editTabTwo = ref(false);
+
+      setTimeout(() => isLoading.value = false, 1000);
 
       $feathersClient.service('residents').get(props.userId, {})
         .then(res => {
@@ -43,18 +47,14 @@
       })
         .then(res => {
           checkins.value = res.data;
-          console.log('checkins value: ', checkins.value);
           if (!checkins.value[0].checkoutDate && resident.value.isStaying === false) {
             $feathersClient.service('residents').patch(resident.value._id, { isStaying: true })
-              .then(res => {
-                console.log('response after patching residents: ', res);
+              .then(() => {
               })
               .catch(err => {
                 console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
               });
-          } else {
-            // console.log(checkins.value[0].checkoutDate);
-          }
+          } 
         })
         .catch(err => {
           console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
@@ -65,8 +65,6 @@
         isLoading.value = true;
         $feathersClient.service('residents').patch(resident.value._id, { isStaying: true })
           .then(res => {
-            isLoading.value = false;
-            // console.log('response: ', res);
             resident.value = res;
 
             $feathersClient.service('checkins').create({
@@ -75,8 +73,7 @@
               checkoutDate: null,
               active: true
             })
-              .then(res => {
-                console.log(res);
+              .then(() => {
                 $feathersClient.service('checkins').find({
                   query: {
                     residentId: props.userId._id,
@@ -84,13 +81,16 @@
                   }
                 })
                   .then((res) => {
+                    isLoading.value = false;
                     checkins.value = res.data;
                   })
                   .catch((err) => {
+                    isLoading.value = false;
                     console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
                   });
               })
               .catch(err => {
+                isLoading.value = false;
                 console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
               });
           })
@@ -105,12 +105,9 @@
         $feathersClient.service('residents').patch(resident.value._id, { isStaying: false })
           .then(res => {
             isLoading.value = false;
-            // console.log('response: ', res);
             resident.value = res;
             $feathersClient.service('checkins').patch(checkins.value[0]._id, { checkoutDate: new Date() })
               .then(() => {
-                console.log(res);
-
                 $feathersClient.service('checkins').find({
                   query: {
                     residentId: props.userId._id,
@@ -118,13 +115,16 @@
                   }
                 })
                   .then((res) => {
+                    isLoading.value = false;
                     checkins.value = res.data;
                   })
                   .catch((err) => {
+                    isLoading.value = false;
                     console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
                   });
               })
               .catch(err => {
+                isLoading.value = false;
                 console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
               });
           })  
@@ -142,6 +142,15 @@
           year: 'numeric',
         });
       }
+
+      function toggleEdit1() {
+        editTabOne.value = !editTabOne.value;
+      };
+
+      function toggleEdit2() {
+        editTabTwo.value = !editTabTwo.value;
+        console.log(editTabTwo.value);
+      };
       
 
       return {
@@ -153,6 +162,10 @@
         handleCheckout,
         isLoading,
         checkins,
+        editTabOne,
+        editTabTwo,
+        toggleEdit1,
+        toggleEdit2,
       };
     },
   };
@@ -185,16 +198,17 @@
 
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="one">
-          <ProfileTabOne :resident="resident" />
+          <ProfileTabOne :editTab="editTabOne" :resident="resident" />
         </q-tab-panel>
 
         <q-tab-panel name="two">
-          <ProfileTabTwo :resident="resident" :checkins="checkins" />
+          <ProfileTabTwo :editTab="editTabTwo" :resident="resident" :checkins="checkins" />
         </q-tab-panel>
       </q-tab-panels>
       <q-separator />
       <q-card-section class="bottom-btn-section" >
-        <q-btn color="secondary" label="Edit Profile" />
+        <q-btn @click="toggleEdit1" color="secondary" label="Edit Profile" v-if="tab === 'one'" />
+        <q-btn @click="toggleEdit2" color="secondary" label="Edit stay history" v-else />
         
         <q-btn :loading="isLoading" color="secondary" @click="handleCheckin" v-if="isStaying === false" label="Check in" />
         <q-btn color="secondary" @click="handleCheckout" v-else label="Check out" />
