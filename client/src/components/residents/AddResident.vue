@@ -76,10 +76,9 @@
           illnesses: illnessesInput.value,
           medications: medicationsInput.value,
           notes: [notesInput.value],
-          isStaying: false,
         })
           .then((res) => {
-            console.log('request was like, sent and stuff', res._id);
+            // console.log('request was sent', res._id);
             router.push({name: 'residentProfilePage', params: { id: res._id }});
           })
           .catch((err) => {

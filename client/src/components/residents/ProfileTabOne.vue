@@ -40,14 +40,16 @@
     </div>
     <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
     
-    <div v-if="residentRef.notes !== null">
-      <p class="bold text-h6">Notes</p>
-      <ul dense bordered padding class="rounded-borders">
-        <li v-for="note in residentRef.notes" :key="note" >{{ note }}</li>
-      </ul>
+    <div v-if="residentRef.notes">
+      <div v-if="residentRef.notes[0] !== null">
+        <p class="bold text-h6">Notes</p>
+        <ul dense bordered padding class="rounded-borders">
+          <li v-for="note in residentRef.notes" :key="note" >{{ note }}</li>
+        </ul>
+      </div>
+
+      <div class="text-h6" v-else>Notes: <span style="opacity: .5;">none</span></div>
     </div>
-    <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
-    
   </div>
 </template>
 

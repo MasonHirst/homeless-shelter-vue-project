@@ -16,6 +16,10 @@
       const date2 = ref(new Date());
       const proxyDate2 = ref(new Date());
 
+      if (props.stay.checkoutDate) {
+        endDateToggle.value = true;
+      }
+
       function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-GB', {
@@ -23,6 +27,18 @@
           month: 'short',
           year: 'numeric',
         });
+      }
+
+      function isAfterStartDate(date1, date2) {
+        const diffTime = date2 - date1;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays > -1;
+      }
+
+      function isWithin7Days(date1, date2) {
+        const diffTime = date2 - date1;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays > -1 && diffDays <= 8;
       }
 
       function editHandler() {
@@ -34,6 +50,54 @@
           date2.value = null;
         } else date2.value = new Date(date2.value);
         date1.value = new Date(date1.value);
+
+        if (endDateToggle.value) {
+          if (!isAfterStartDate(date1.value, date2.value)) {
+            console.log(isAfterStartDate(date1.value, date2.value));
+            Swal.fire({
+              title: 'Check again!',
+              icon: 'error',
+              text: 'Check out date cannot be before check in date'
+            });
+            return;
+          }
+        }
+        if (endDateToggle.value) {
+          if (!isWithin7Days(date1.value, date2.value)) {
+            Swal.fire({
+              title: 'Are you sure?',
+              icon: 'warning',
+              text: 'You are attempting to change a stay record to be longer than the 7-day limit',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, change it!'
+            }).then(result => {
+              if (result.value) {
+                saveIt();
+                return;
+              }
+            });
+          } else saveIt();
+        } else if (!isWithin7Days(date1.value, new Date())) {
+          Swal.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            text: 'This change shows the resident has been checked in for more than a week!',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, change it!'
+          }).then(result => {
+            if (result.value) {
+              saveIt();
+              return;
+            }
+          });
+        } else saveIt();
+      }
+
+      function saveIt() {
         Swal.fire({
           title: 'Are you sure?',
           text: 'This will permanently change this stay record',
@@ -162,51 +226,39 @@
         <span class="text-h6">{{ formatDate(date1) }}</span>
 
         <q-btn size="sm" icon="event" round color="primary">
-        <q-popup-proxy @before-show="updateProxy1" cover transition-show="scale" transition-hide="scale">
-          <q-date v-model="proxyDate1">
-            <div class="row items-center justify-end q-gutter-sm">
-              <q-btn label="Cancel" color="primary" flat v-close-popup />
-              <q-btn label="OK" color="primary" flat @click="save1" v-close-popup />
-            </div>
-          </q-date>
-        </q-popup-proxy>
-      </q-btn>
+          <q-popup-proxy @before-show="updateProxy1" cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="proxyDate1">
+              <div class="row items-center justify-end q-gutter-sm">
+                <q-btn label="Cancel" color="primary" flat v-close-popup />
+                <q-btn label="OK" color="primary" flat @click="save1" v-close-popup />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-btn>
       </div>
 
       <div class="stack" v-if="endDateToggle">
-        <q-toggle
-          class="text-h6"
-          color="secondary"
-          v-model="endDateToggle"
-          label="Check out:"
-          left-label
-        />
+        <q-toggle class="text-h6" color="secondary" v-model="endDateToggle" label="Check out:" left-label />
         <span class="text-h6">{{ formatDate(date2) }}</span>
 
         <q-btn size="sm" icon="event" round color="primary">
-        <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
-          <q-date v-model="proxyDate2">
-            <div class="row items-center justify-end q-gutter-sm">
-              <q-btn label="Cancel" color="primary" flat v-close-popup />
-              <q-btn label="OK" color="primary" flat @click="save2" v-close-popup />
-            </div>
-          </q-date>
-        </q-popup-proxy>
-      </q-btn>
+          <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="proxyDate2">
+              <div class="row items-center justify-end q-gutter-sm">
+                <q-btn label="Cancel" color="primary" flat v-close-popup />
+                <q-btn label="OK" color="primary" flat @click="save2" v-close-popup />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-btn>
       </div>
 
       <div v-else>
-        <q-toggle
-          class="text-h6"
-          color="secondary"
-          v-model="endDateToggle"
-          label="Checkout"
-          left-label
-        />
+        <q-toggle class="text-h6" color="secondary" v-model="endDateToggle" label="Checkout" left-label />
         <span class="text-h6 faded">Currently staying</span>
       </div>
     </div>
-  
+
     <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" />
     <q-btn @click="saveHandler" flat rounded color="primary" label="save" v-if="editTab" />
   </div>

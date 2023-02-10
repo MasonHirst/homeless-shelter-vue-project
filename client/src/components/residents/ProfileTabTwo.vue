@@ -18,8 +18,8 @@
       const endDateToggle = ref(false);
       const date1 = ref(formatDate(Date()));
       const proxyDate1 = ref(formatDate(Date()));
-      const date2 = ref(formatDate(Date()));
-      const proxyDate2 = ref(formatDate(Date()));
+      const date2 = ref(new Date());
+      const proxyDate2 = ref(new Date());
 
       watch(() => props.checkins, () => {
         stays.value = props.checkins;
@@ -46,11 +46,58 @@
         createStay.value = !createStay.value;
       }
 
+      function isAfterStartDate(date1, date2) {
+        const diffTime = date2 - date1;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays > -1;
+      }
+
+      function isWithin7Days(date1, date2) {
+        const diffTime = date2 - date1;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        return diffDays > -1 && diffDays <= 8;
+      }
+
       function saveHandler() {
         if (!endDateToggle.value) {
           date2.value = null;
         } else date2.value = new Date(date2.value);
         date1.value = new Date(date1.value);
+
+        if (endDateToggle.value) {
+          console.log('made it in');
+          if (!isAfterStartDate(date1.value, date2.value)) {
+            console.log(isAfterStartDate(date1.value, date2.value));
+            Swal.fire({
+              title: 'Check again!',
+              icon: 'error',
+              text: 'Check out date cannot be before check in date'
+            });
+            return;
+          }
+        }
+        if (endDateToggle.value) {
+          if (!isWithin7Days(date1.value, date2.value)) {
+            console.log('bruh im in');
+            Swal.fire({
+              title: 'Are you sure?',
+              icon: 'warning',
+              text: 'You are attempting to create a stay record longer than the 7-day limit',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, create it!'
+            }).then(result => {
+              if (result.value) {
+                saveIt();
+                return;
+              }
+            });
+          } else saveIt();
+        } else saveIt();
+      }
+
+      function saveIt() {
         Swal.fire({
           title: 'Are you sure?',
           text: 'This will create a new stay record for this resident',
