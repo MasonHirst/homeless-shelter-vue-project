@@ -21,7 +21,6 @@
 
 <template>
   <q-page id="RegisterPage" class="q-page-main q-pa-md">
-    <h3>Resident profile page</h3>
     <ResidentProfile :userId="userIdRef" />
   </q-page>
 </template>
@@ -31,7 +30,10 @@
 <!-- add the scoped attribute to contain styles to this component only -->
 <style scoped>
 .q-page-main {
-  
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 50px;
 }
 
 </style>

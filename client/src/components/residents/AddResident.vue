@@ -75,7 +75,7 @@
           gender: genderInput.value,
           illnesses: illnessesInput.value,
           medications: medicationsInput.value,
-          notes: notesInput.value,
+          notes: [notesInput.value],
           isStaying: false,
         })
           .then((res) => {
