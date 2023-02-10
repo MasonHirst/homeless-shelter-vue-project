@@ -1,12 +1,14 @@
 <script>
   import { ref, watch } from 'vue';
+  import TabTwoCard from './TabTwoCard.vue';
 
   export default {
     props: { 
       checkins: Array,
       editTab: Boolean,
     },
-    setup(props) {
+    components: {TabTwoCard},
+    setup(props, context) {
       const stays = ref(props.checkins);
       const editing = ref(false);
 
@@ -14,24 +16,14 @@
         stays.value = props.checkins;
       });
 
-      function editHandler() {
-        
-      };
-
-      function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        });
+      function deleteAction() {
+        context.emit('deleteEvent');
       }
 
       return {
         stays,
-        formatDate,
         editing,
-        editHandler,
+        deleteAction,
       };
     },
   };
@@ -39,27 +31,9 @@
 
 
 <template>
-  <div v-if="stays" style="padding: 15px;">
-    <div v-for="stay in stays" :key="stay">
-      <div class="text-h6 gap" v-if="stay.checkoutDate">
-        <span>{{ formatDate(stay.checkinDate) }}</span> 
-        <span>-</span>
-        <span>{{ formatDate(stay.checkoutDate) }}</span>
-        <q-btn @click="editHandler" flat rounded color="primary" label="edit" v-if="editTab" />
-      </div>
-
-      <div class="text-h6 gap" v-else>
-        <span>{{ formatDate(stay.checkinDate) }}</span>
-        <span>-</span>
-        <span style="color: red; font-weight: bold;">current</span>
-        <q-btn flat rounded color="primary" label="edit" v-if="editTab" />
-      </div>
-    </div>
-  </div>
-
-  <div v-else>
-    <span class="text-h6 faded">This resident has no stay history</span>
-    <div class="spacer-div"></div>
+  <div class="overflow center">
+    <q-btn flat color="primary" label="+ Manually create stay" v-if="editTab" />
+    <TabTwoCard v-for="stay in stays" :key="stay" :stay="stay" :editTab="editTab" @delete-event="deleteAction" />
   </div>
 </template>
 
@@ -69,6 +43,12 @@
 <style scoped>
 .faded {
   opacity: .5;
+}
+
+.overflow {
+  overflow: auto;
+  min-height: 200px;
+  max-height: calc(100vh - 400px);
 }
 
 .spacer-div {
@@ -81,5 +61,11 @@
   align-items: center;
   gap: 15px;
   padding: 5px;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+
 }
 </style>

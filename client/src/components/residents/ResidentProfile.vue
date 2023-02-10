@@ -149,8 +149,27 @@
 
       function toggleEdit2() {
         editTabTwo.value = !editTabTwo.value;
-        console.log(editTabTwo.value);
       };
+
+      function deleteEvent() {
+        isLoading.value = true;
+        setTimeout(() => {
+          $feathersClient.service('checkins').find({
+            query: {
+              residentId: props.userId._id,
+              $sort: { createdAt: -1 }
+            }
+          })
+            .then(res => {
+              isLoading.value = false;
+              checkins.value = res.data;
+            })
+            .catch(err => {
+              isLoading.value = false;
+              console.log('ERROR IN THE RESIDENT PROFILE COMPONENT:', err);
+            });
+        }, 1000);
+      }
       
 
       return {
@@ -166,6 +185,7 @@
         editTabTwo,
         toggleEdit1,
         toggleEdit2,
+        deleteEvent,
       };
     },
   };
@@ -185,8 +205,8 @@
             <div class="text-subtitle1">{{ age }} years old</div>
           </div>
         </div>
-        <div class="text-h5 red-text" v-if="isStaying === true" >Currently checked in</div>
-        <div class="text-h5 red-text" v-else >Not currently staying</div>
+        <div class="text-h5 red-text" style="margin-top: 5px;" v-if="isStaying === true" >Currently checked in</div>
+        <div class="text-h5 red-text" style="margin-top: 5px;" v-else >Not currently staying</div>
       </q-card-section>
 
       <q-tabs v-model="tab" class="text-teal">
@@ -202,13 +222,16 @@
         </q-tab-panel>
 
         <q-tab-panel name="two">
-          <ProfileTabTwo :editTab="editTabTwo" :resident="resident" :checkins="checkins" />
+          <ProfileTabTwo :editTab="editTabTwo" :resident="resident" :checkins="checkins" @delete-event="deleteEvent" />
         </q-tab-panel>
       </q-tab-panels>
       <q-separator />
       <q-card-section class="bottom-btn-section" >
         <q-btn @click="toggleEdit1" color="secondary" label="Edit Profile" v-if="tab === 'one'" />
-        <q-btn @click="toggleEdit2" color="secondary" label="Edit stay history" v-else />
+        <div v-else>
+          <q-btn @click="toggleEdit2" color="secondary" label="Edit stay history" v-if="!editTabTwo" />
+          <q-btn @click="toggleEdit2" color="secondary" label="Stop editing" v-else />
+        </div>
         
         <q-btn :loading="isLoading" color="secondary" @click="handleCheckin" v-if="isStaying === false" label="Check in" />
         <q-btn color="secondary" @click="handleCheckout" v-else label="Check out" />

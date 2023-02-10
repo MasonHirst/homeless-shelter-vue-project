@@ -22,30 +22,33 @@
 
 
 <template>
-  <div v-if="residentRef.illnesses !== null" >
-    <p class="bold text-h6">Illnesses</p>
-    <ul dense bordered padding class="rounded-borders">
-      <li v-for="illness in residentRef.illnesses" :key="illness" >{{ illness }}</li>
-    </ul>
-  </div>
-  <div class="text-h6" v-else >Illnesses: <span style="opacity: .5;">none</span></div>
+  <div class="overflow">
 
-  <div v-if="residentRef.medications !== null">
-    <p class="bold text-h6">Medications</p>
-    <ul dense bordered padding class="rounded-borders">
-      <li v-for="medication in residentRef.medications" :key="medication" >{{ medication }}</li>
-    </ul>
+    <div v-if="residentRef.illnesses !== null" >
+      <p class="bold text-h6">Illnesses</p>
+      <ul dense bordered padding class="rounded-borders">
+        <li v-for="illness in residentRef.illnesses" :key="illness" >{{ illness }}</li>
+      </ul>
+    </div>
+    <div class="text-h6" v-else >Illnesses: <span style="opacity: .5;">none</span></div>
+    
+    <div v-if="residentRef.medications !== null">
+      <p class="bold text-h6">Medications</p>
+      <ul dense bordered padding class="rounded-borders">
+        <li v-for="medication in residentRef.medications" :key="medication" >{{ medication }}</li>
+      </ul>
+    </div>
+    <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
+    
+    <div v-if="residentRef.notes !== null">
+      <p class="bold text-h6">Notes</p>
+      <ul dense bordered padding class="rounded-borders">
+        <li v-for="note in residentRef.notes" :key="note" >{{ note }}</li>
+      </ul>
+    </div>
+    <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
+    
   </div>
-  <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
-
-  <div v-if="residentRef.notes !== null">
-    <p class="bold text-h6">Notes</p>
-    <ul dense bordered padding class="rounded-borders">
-      <li v-for="note in residentRef.notes" :key="note" >{{ note }}</li>
-    </ul>
-  </div>
-  <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
-  
 </template>
 
 
@@ -55,5 +58,11 @@
 .bold {
   font-size: large;
   font-weight: bold;
+}
+
+.overflow {
+  overflow: auto;
+  min-height: 200px;
+  max-height: calc(100vh - 400px);
 }
 </style>
