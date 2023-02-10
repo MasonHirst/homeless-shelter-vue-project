@@ -34,6 +34,7 @@
   justify-content: center;
   align-items: flex-start;
   padding-top: 50px;
+  overflow: auto;
 }
 
 </style>

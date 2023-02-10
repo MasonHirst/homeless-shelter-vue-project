@@ -15,6 +15,8 @@
       const age = ref(null);
       const isStaying = ref('');
       const isLoading = ref(false);
+      const checkins = ref({});
+      const tab = ref('one');
 
       $feathersClient.service('residents').get(props.userId, {})
         .then(res => {
@@ -33,13 +35,64 @@
       });
 
 
+      $feathersClient.service('checkins').find({
+        query: {
+          residentId: props.userId._id,
+          $sort: { createdAt: -1 }
+        }
+      })
+        .then(res => {
+          checkins.value = res.data;
+          console.log('checkins value: ', checkins.value);
+          if (!checkins.value[0].checkoutDate && resident.value.isStaying === false) {
+            $feathersClient.service('residents').patch(resident.value._id, { isStaying: true })
+              .then(res => {
+                console.log('response after patching residents: ', res);
+              })
+              .catch(err => {
+                console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
+              });
+          } else {
+            // console.log(checkins.value[0].checkoutDate);
+          }
+        })
+        .catch(err => {
+          console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
+        });
+
+
       function handleCheckin() {
         isLoading.value = true;
         $feathersClient.service('residents').patch(resident.value._id, { isStaying: true })
           .then(res => {
             isLoading.value = false;
-            console.log('response: ', res);
+            // console.log('response: ', res);
             resident.value = res;
+
+            $feathersClient.service('checkins').create({
+              residentId: '63e5797154a63cef484245f9',
+              checkinDate: formatDate(new Date()),
+              checkoutDate: null,
+              active: true
+            })
+              .then(res => {
+                console.log(res);
+                $feathersClient.service('checkins').find({
+                  query: {
+                    residentId: props.userId._id,
+                    $sort: { createdAt: -1 }
+                  }
+                })
+                  .then((res) => {
+                    checkins.value = res.data;
+                  })
+                  .catch((err) => {
+                    console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
+                  });
+              })
+              .catch(err => {
+                console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
+              });
           })
           .catch(err => {
             isLoading.value = false;
@@ -52,24 +105,54 @@
         $feathersClient.service('residents').patch(resident.value._id, { isStaying: false })
           .then(res => {
             isLoading.value = false;
-            console.log('response: ', res);
+            // console.log('response: ', res);
             resident.value = res;
-          })
+            $feathersClient.service('checkins').patch(checkins.value[0]._id, { checkoutDate: new Date() })
+              .then(() => {
+                console.log(res);
+
+                $feathersClient.service('checkins').find({
+                  query: {
+                    residentId: props.userId._id,
+                    $sort: { createdAt: -1 }
+                  }
+                })
+                  .then((res) => {
+                    checkins.value = res.data;
+                  })
+                  .catch((err) => {
+                    console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
+                  });
+              })
+              .catch(err => {
+                console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
+              });
+          })  
           .catch(err => {
             isLoading.value = false;
             console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
           });
       };
+
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      }
       
 
       return {
-        tab: ref('one'),
+        tab,
         resident,
         age,
         isStaying,
         handleCheckin,
         handleCheckout,
         isLoading,
+        checkins,
       };
     },
   };
@@ -82,9 +165,13 @@
   
     <q-card class="q-card my-card">
       <q-card-section class="spread" >
-        <div class="text-h3 bold">{{ resident.name }}</div>
-        <!-- <div class="text-subtitle2">{{ resident.gender }}</div>
-        <div class="text-subtitle2">{{ age }} years old</div> -->
+        <div>
+          <div class="text-h3 bold">{{ resident.name }}</div>
+          <div style="margin-left: 15px;">
+            <div class="text-subtitle1">{{ resident.gender }}</div>
+            <div class="text-subtitle1">{{ age }} years old</div>
+          </div>
+        </div>
         <div class="text-h5 red-text" v-if="isStaying === true" >Currently checked in</div>
         <div class="text-h5 red-text" v-else >Not currently staying</div>
       </q-card-section>
@@ -102,7 +189,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="two">
-          <ProfileTabTwo :resident="resident" />
+          <ProfileTabTwo :resident="resident" :checkins="checkins" />
         </q-tab-panel>
       </q-tab-panels>
       <q-separator />
@@ -120,6 +207,7 @@
 .q-card {
   min-width: 300px;
   width: 570px;
+  overflow: auto;
 }
 
 .bottom-btn-section {
@@ -135,7 +223,7 @@
 .spread {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 25px;
 }
 
