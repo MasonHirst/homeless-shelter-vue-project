@@ -10,7 +10,6 @@ module.exports = function (app) {
     residentId: { type: String, required: true },
     checkinDate: { type: Date },
     checkoutDate: { type: Date },
-    active: { type: Boolean },
   }, {
     timestamps: true
   });

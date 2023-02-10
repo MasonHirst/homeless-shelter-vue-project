@@ -10,12 +10,11 @@
     setup(props, context) {
       const $feathersClient = inject('$feathersClient');
       let editCard = ref(false);
-      // const startDate = ref(formatDate(props.stay.checkinDate));
-      // const endDate = ref(formatDate(props.stay.checkoutDate));
+      const endDateToggle = ref(false);
       const date1 = ref(formatDate(props.stay.checkinDate));
       const proxyDate1 = ref(Date());
-      const date2 = ref(props.stay.checkoutDate);
-      const proxyDate2 = ref(Date());
+      const date2 = ref(new Date());
+      const proxyDate2 = ref(new Date());
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -28,6 +27,46 @@
 
       function editHandler() {
         editCard.value = !editCard.value;
+      }
+
+      function saveHandler() {
+        if (!endDateToggle.value) {
+          date2.value = null;
+        } else date2.value = new Date(date2.value);
+        date1.value = new Date(date1.value);
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'This will permanently change this stay record',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, change it!'
+        }).then((result) => {
+          context.emit('deleteEvent');
+          editHandler();
+          if (result.value) {
+            $feathersClient.service('checkins').patch(props.stay._id, {
+              checkinDate: date1.value,
+              checkoutDate: date2.value
+            })
+              .then(() => {
+                Swal.fire(
+                  'Updated!',
+                  'The record has been changed.',
+                  'success'
+                );
+              })
+              .catch((error) => {
+                console.error(error);
+                Swal.fire(
+                  'Error!',
+                  'There was an error changing the record. Refresh the page and try again.',
+                  'error'
+                );
+              });
+          }
+        });
       }
 
       function deleteHandler() {
@@ -66,12 +105,14 @@
       return {
         formatDate,
         editHandler,
+        saveHandler,
         editCard,
         deleteHandler,
         date1,
         date2,
         proxyDate1,
         proxyDate2,
+        endDateToggle,
         updateProxy1() {
           proxyDate1.value = date1.value;
         },
@@ -111,7 +152,6 @@
 
     <div v-else>
       <span class="text-h6 faded">This resident has no stay history</span>
-      <div class="spacer-div"></div>
     </div>
   </div>
   <div class="gap border" v-else>
@@ -133,8 +173,14 @@
       </q-btn>
       </div>
 
-      <div class="stack">
-        <span class="text-h6">Check out:</span>
+      <div class="stack" v-if="endDateToggle">
+        <q-toggle
+          class="text-h6"
+          color="secondary"
+          v-model="endDateToggle"
+          label="Check out:"
+          left-label
+        />
         <span class="text-h6">{{ formatDate(date2) }}</span>
 
         <q-btn size="sm" icon="event" round color="primary">
@@ -147,12 +193,22 @@
           </q-date>
         </q-popup-proxy>
       </q-btn>
+      </div>
 
+      <div v-else>
+        <q-toggle
+          class="text-h6"
+          color="secondary"
+          v-model="endDateToggle"
+          label="Checkout"
+          left-label
+        />
+        <span class="text-h6 faded">Currently staying</span>
       </div>
     </div>
   
     <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" />
-    <q-btn @click="editHandler" flat rounded color="primary" label="save" v-if="editTab" />
+    <q-btn @click="saveHandler" flat rounded color="primary" label="save" v-if="editTab" />
   </div>
 </template>
 
@@ -160,11 +216,15 @@
 
 <!-- add the scoped attribute to contain styles to this component only -->
 <style scoped>
+.faded {
+  opacity: .5;
+}
+
 .stack-parent {
   display: flex;
   flex-direction: column;
   height: 50px;
-  gap: 15px;
+  gap: 10px;
 }
 
 .stack-events {
@@ -183,13 +243,11 @@
 
 .border {
   border: 1px dashed #FF211B;
-  min-height: 85px;
+  min-height: 100px;
   border-radius: 10px;
 }
 
-.spacer-div {
-  height: 75px;
-}
+
 
 .trash {
   background-color: transparent;

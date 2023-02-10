@@ -34,31 +34,30 @@
         let ageInMilliseconds = new Date() - new Date(resident.value.birthday);
         let ageDate = new Date(ageInMilliseconds);
         age.value = Math.abs(ageDate.getUTCFullYear() - 1970);
-
-        isStaying.value = resident.value.isStaying;
       });
 
 
-      $feathersClient.service('checkins').find({
-        query: {
-          residentId: props.userId._id,
-          $sort: { createdAt: -1 }
-        }
-      })
-        .then(res => {
-          checkins.value = res.data;
-          if (!checkins.value[0].checkoutDate && resident.value.isStaying === false) {
-            $feathersClient.service('residents').patch(resident.value._id, { isStaying: true })
-              .then(() => {
-              })
-              .catch(err => {
-                console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
-              });
-          } 
+      function getCheckins() {
+        $feathersClient.service('checkins').find({
+          query: {
+            residentId: props.userId._id,
+            $sort: { createdAt: -1 }
+          }
         })
-        .catch(err => {
-          console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
-        });
+          .then(res => {
+            isLoading.value = false;
+            checkins.value = res.data;
+            if (checkins.value[0].checkinDate && !checkins.value[0].checkoutDate) {
+              isStaying.value = true;
+            } else {
+              isStaying.value = false;
+            }
+          })
+          .catch(err => {
+            console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
+          });
+      }
+      getCheckins();
 
 
       function handleCheckin() {
@@ -71,7 +70,6 @@
               residentId: '63e5797154a63cef484245f9',
               checkinDate: formatDate(new Date()),
               checkoutDate: null,
-              active: true
             })
               .then(() => {
                 $feathersClient.service('checkins').find({
@@ -83,6 +81,11 @@
                   .then((res) => {
                     isLoading.value = false;
                     checkins.value = res.data;
+                    if (checkins.value[0].checkinDate && !checkins.value[0].checkoutDate) {
+                      isStaying.value = true;
+                    } else {
+                      isStaying.value = false;
+                    }
                   })
                   .catch((err) => {
                     isLoading.value = false;
@@ -106,22 +109,9 @@
           .then(res => {
             isLoading.value = false;
             resident.value = res;
-            $feathersClient.service('checkins').patch(checkins.value[0]._id, { checkoutDate: new Date() })
+            $feathersClient.service('checkins').patch(checkins.value[0]._id, {  checkoutDate: new Date() })
               .then(() => {
-                $feathersClient.service('checkins').find({
-                  query: {
-                    residentId: props.userId._id,
-                    $sort: { createdAt: -1 }
-                  }
-                })
-                  .then((res) => {
-                    isLoading.value = false;
-                    checkins.value = res.data;
-                  })
-                  .catch((err) => {
-                    isLoading.value = false;
-                    console.log('ERROR IN THE RESIDENT PROFILE COMPONENT: ', err);
-                  });
+                getCheckins();
               })
               .catch(err => {
                 isLoading.value = false;
@@ -154,20 +144,7 @@
       function deleteEvent() {
         isLoading.value = true;
         setTimeout(() => {
-          $feathersClient.service('checkins').find({
-            query: {
-              residentId: props.userId._id,
-              $sort: { createdAt: -1 }
-            }
-          })
-            .then(res => {
-              isLoading.value = false;
-              checkins.value = res.data;
-            })
-            .catch(err => {
-              isLoading.value = false;
-              console.log('ERROR IN THE RESIDENT PROFILE COMPONENT:', err);
-            });
+          getCheckins();
         }, 1000);
       }
       
@@ -222,7 +199,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="two">
-          <ProfileTabTwo :editTab="editTabTwo" :resident="resident" :checkins="checkins" @delete-event="deleteEvent" />
+          <ProfileTabTwo :userId="userId" :editTab="editTabTwo" :resident="resident" :checkins="checkins" @delete-event="deleteEvent" />
         </q-tab-panel>
       </q-tab-panels>
       <q-separator />
@@ -243,7 +220,7 @@
 <style scoped>
 .q-card {
   min-width: 300px;
-  width: 570px;
+  width: 650px;
   overflow: auto;
 }
 
