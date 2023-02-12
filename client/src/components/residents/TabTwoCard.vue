@@ -197,7 +197,7 @@
 
 
 <template>
-  <div v-if="!editCard">
+  <div v-if="!editCard || !editTab">
     <div v-if="stay" style="padding: 10px;">
       <div class="text-h6 gap" v-if="stay.checkoutDate">
         <span>{{ formatDate(stay.checkinDate) }}</span>
@@ -213,12 +213,10 @@
         <q-btn @click="editHandler" flat rounded color="primary" label="edit" v-if="editTab" />
       </div>
     </div>
-
-    <div v-else>
-      <span class="text-h6 faded">This resident has no stay history</span>
-    </div>
+    <span v-else class="text-h6 faded">This resident has no stay history</span>
+    
   </div>
-  <div class="gap border" v-else>
+  <div class="gap border" v-if="editTab && editCard">
     <q-btn @click="deleteHandler" icon="delete" flat round class="trash" v-if="editTab" />
     <div class="stack-parent">
       <div class="stack">

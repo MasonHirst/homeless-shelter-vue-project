@@ -1,5 +1,5 @@
 <script>
-  import { watch, ref } from 'vue';
+  import { ref, watch } from 'vue';
   export default {
     props: { 
       resident: Object,
@@ -11,10 +11,20 @@
       watch(() => props.resident, () => {
         residentRef.value = props.resident;
       });
+
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      }
       
 
       return {
-        residentRef
+        residentRef,
+        formatDate,
       };
     },
   };
@@ -22,7 +32,14 @@
 
 
 <template>
-  <div class="overflow">
+  <div class="overflow relative">
+    
+    <div class="absolute-top-right flex-col">
+      <span class="text-h6">Gender: <span class="text-subtitle1 faded">{{ residentRef.gender }}</span></span>
+     
+      <span class="text-h6">Birthday: <span class="text-subtitle1 faded">{{ formatDate(residentRef.birthday) }}</span></span>
+      
+    </div>
 
     <div v-if="residentRef.illnesses !== null" >
       <p class="bold text-h6">Illnesses</p>
@@ -66,5 +83,25 @@
   overflow: auto;
   min-height: 200px;
   max-height: calc(100vh - 400px);
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute-top-right {
+  position: absolute;
+  top: 0px;
+  right: 5px;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.faded {
+  opacity: .6;
 }
 </style>

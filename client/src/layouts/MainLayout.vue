@@ -63,11 +63,11 @@
         </q-toolbar>
       </q-header>
   
-      <q-drawer v-model="leftDrawerOpen"
+      <q-drawer :width=190 v-model="leftDrawerOpen"
                 bordered>
         <q-list>
           <q-item-label header>
-            Essential Links
+            Pages
           </q-item-label>
   
           <EssentialLink v-for="link in essentialLinks"

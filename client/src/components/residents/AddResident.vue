@@ -78,11 +78,10 @@
           notes: [notesInput.value],
         })
           .then((res) => {
-            // console.log('request was sent', res._id);
-            router.push({name: 'residentProfilePage', params: { id: res._id }});
+            router.push({ name: 'residentProfilePage', params: { id: res._id } });
           })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
           });
       }
 
@@ -91,7 +90,7 @@
           illnessOptions.value = res.data[0].illness;
         })
         .catch((err) => {
-          console.log('ERROR IN THE ILLNESSES DATA FETCH', err);
+          console.error('ERROR IN THE ILLNESSES DATA FETCH', err);
         });
 
       $feathersClient.service('medications').find({})
@@ -99,7 +98,7 @@
           medicationOptions.value = res.data[0].medication;
         })
         .catch(err => {
-          console.log('ERROR IN THE MEDICATIONS DATA FETCH', err);
+          console.error('ERROR IN THE MEDICATIONS DATA FETCH', err);
         });
 
       function filterFn(val, update) {
@@ -220,50 +219,15 @@
 
 
             </div>
-
-            <!-- <div class="date-inputs-div"> -->
-              <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
- <!--
-              <div class="input-datepicker-div">
-                <q-input standout="bg-secondary text-white" v-model="date" label="Check-in date" />
-                <div class="q-pa-md datepicker-btn">
-                  <q-btn icon="event" round color="primary">
-                    <q-popup-proxy @before-show="updateProxy" cover transition-show="scale" transition-hide="scale">
-                      <q-date v-model="proxyDate">
-                        <div class="row items-center justify-end q-gutter-sm">
-                          <q-btn label="Cancel" color="primary" flat v-close-popup />
-                          <q-btn label="OK" color="primary" flat @click="save" v-close-popup />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-btn>
-                </div>
-              </div>
-
-              <div class="input-datepicker-div">
-                <q-input standout="bg-secondary text-white" v-model="date2" label="Last checkout" />
-                <div class="q-pa-md datepicker-btn">
-                  <q-btn icon="event" round color="primary">
-                    <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
-                      <q-date v-model="proxyDate2">
-                        <div class="row items-center justify-end q-gutter-sm">
-                          <q-btn label="Cancel" color="primary" flat v-close-popup />
-                          <q-btn label="OK" color="primary" flat @click="save2" v-close-popup />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-btn>
-                </div>
-              </div>
-            </div> -->
+            <q-select standout="bg-secondary text-white" v-model="genderInput" :options="options" label="Gender" />
 
 
-            <q-select label="Add illnesses" standout="bg-secondary text-white" v-model="illnessesInput" use-input use-chips multiple
-              input-debounce="0" @new-value="createValue" :options="filterOptions" @filter="filterFn"
+            <q-select label="Add illnesses" standout="bg-secondary text-white" v-model="illnessesInput" use-input
+              use-chips multiple input-debounce="0" @new-value="createValue" :options="filterOptions" @filter="filterFn"
               style="width: 250px" />
 
-            <q-select label="Add medications" standout="bg-secondary text-white" v-model="medicationsInput" use-input use-chips multiple
-              input-debounce="0" @new-value="createValue" :options="medicationFilterOptions"
+            <q-select label="Add medications" standout="bg-secondary text-white" v-model="medicationsInput" use-input
+              use-chips multiple input-debounce="0" @new-value="createValue" :options="medicationFilterOptions"
               @filter="medicationsFilterFn" style="width: 250px" />
 
             <q-input standout="bg-secondary text-white" autogrow v-model="notesInput" label="Notes" />
@@ -295,6 +259,7 @@
   margin-top: 25px;
   min-width: 600px;
 }
+
 .inputs-container {
   display: flex;
   flex-direction: column;

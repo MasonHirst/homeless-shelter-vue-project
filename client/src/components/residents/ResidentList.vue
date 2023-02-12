@@ -1,13 +1,16 @@
 <script>
-  import { defineComponent, ref, inject } from 'vue';
+  import { defineComponent, ref, inject, watch } from 'vue';
+  import ResidentListCard from './ResidentListCard.vue';
 
   export default defineComponent({
     name: 'ResidentList',
-    components: {},
+    components: {ResidentListCard},
     props: {},
     setup() {
       let $feathersClient = inject('$feathersClient');
       let residents = ref([]);
+      let filteredResidents = ref([]);
+      let searchStr = ref('');
 
       function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -18,17 +21,26 @@
         });
       }
 
+      watch(() => searchStr.value, () => {
+        filteredResidents.value = residents.value.filter(resident => {
+          return resident.name.toLowerCase().includes(searchStr.value.toLowerCase());
+        });
+      });
+
       $feathersClient.service('residents').find({})
         .then((res) => {
           residents.value = res.data;
+          filteredResidents.value = res.data;
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
 
       return {
         residents,
+        filteredResidents,
         formatDate,
+        searchStr,
       };
     },
   });
@@ -36,17 +48,32 @@
 
 
 <template>
-  <div>
-    <h1>Resident List</h1>
-    <h3 v-for="person in residents" :key="person.id">{{ person.name + ' - ' + formatDate(person.birthday) }}</h3>
+  <div class="" v-if="residents">
+    <q-input standout="bg-secondary text-white" style="margin-bottom: 15px;" v-model="searchStr" label="search">
+      <template v-slot:prepend>
+        <q-icon name="person" />
+      </template>
+    </q-input>
+    <div class="flex-col">
+      <ResidentListCard v-for="resident in filteredResidents" :key="resident" :resident="resident" />
+    </div>
+  </div>
+  <div v-else>
+    <span class="text-h6 faded">No resident records yet!</span>
   </div>
 </template>
 
 
 
 <style scoped>
-  div {
-    border: 2px solid lightgreen;
-    padding: 15px;
+  .flex-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .faded {
+    opacity: .6;
   }
 </style>

@@ -4,12 +4,12 @@
   import Swal from 'sweetalert2';
 
   export default {
-    props: { 
+    props: {
       checkins: Array,
       editTab: Boolean,
       userId: String,
     },
-    components: {TabTwoCard},
+    components: { TabTwoCard },
     setup(props, context) {
       const $feathersClient = inject('$feathersClient');
       const stays = ref(props.checkins);
@@ -65,9 +65,7 @@
         date1.value = new Date(date1.value);
 
         if (endDateToggle.value) {
-          console.log('made it in');
           if (!isAfterStartDate(date1.value, date2.value)) {
-            console.log(isAfterStartDate(date1.value, date2.value));
             Swal.fire({
               title: 'Check again!',
               icon: 'error',
@@ -78,7 +76,6 @@
         }
         if (endDateToggle.value) {
           if (!isWithin7Days(date1.value, date2.value)) {
-            console.log('bruh im in');
             Swal.fire({
               title: 'Are you sure?',
               icon: 'warning',
@@ -167,74 +164,68 @@
 
 
 <template>
-  
-  <div class="overflow center">
-    <div class="gap border" v-if="createStay && editTab">
-      <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" />
-      <div class="stack-parent">
-        <div class="stack">
-          <span class="text-h6">Check in:</span>
-          <span class="text-h6">{{ formatDate(date1) }}</span>
+  <div class="overflow">
+    <div v-if="stays.length > 0">
+      <div class="center">
+        <div class="gap border" v-if="createStay && editTab">
+          <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" />
+          <div class="stack-parent">
+            <div class="stack">
+              <span class="text-h6">Check in:</span>
+              <span class="text-h6">{{ formatDate(date1) }}</span>
 
-          <q-btn size="sm" icon="event" round color="primary">
-            <q-popup-proxy @before-show="updateProxy1" cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="proxyDate1">
-                <div class="row items-center justify-end q-gutter-sm">
-                  <q-btn label="Cancel" color="primary" flat v-close-popup />
-                  <q-btn label="OK" color="primary" flat @click="save1" v-close-popup />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-btn>
+              <q-btn size="sm" icon="event" round color="primary">
+                <q-popup-proxy @before-show="updateProxy1" cover transition-show="scale" transition-hide="scale">
+                  <q-date v-model="proxyDate1">
+                    <div class="row items-center justify-end q-gutter-sm">
+                      <q-btn label="Cancel" color="primary" flat v-close-popup />
+                      <q-btn label="OK" color="primary" flat @click="save1" v-close-popup />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-btn>
+            </div>
+
+            <div class="stack" v-if="endDateToggle">
+              <q-toggle class="text-h6" color="secondary" v-model="endDateToggle" label="Check out:" left-label />
+              <span class="text-h6">{{ formatDate(date2) }}</span>
+
+              <q-btn size="sm" icon="event" round color="primary">
+                <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
+                  <q-date v-model="proxyDate2">
+                    <div class="row items-center justify-end q-gutter-sm">
+                      <q-btn label="Cancel" color="primary" flat v-close-popup />
+                      <q-btn label="OK" color="primary" flat @click="save2" v-close-popup />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-btn>
+            </div>
+
+            <div v-else>
+              <q-toggle class="text-h6" color="secondary" v-model="endDateToggle" label="Checkout" left-label />
+              <span class="text-h6 faded">Currently staying</span>
+            </div>
+          </div>
+
+
+          <!-- <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" /> -->
+          <q-btn @click="saveHandler" flat rounded color="primary" label="save new stay" v-if="editTab" />
         </div>
-        
-        <div class="stack" v-if="endDateToggle">
-          <q-toggle
-          class="text-h6"
-          color="secondary"
-          v-model="endDateToggle"
-          label="Check out:"
-          left-label
-          />
-          <span class="text-h6">{{ formatDate(date2) }}</span>
-          
-          <q-btn size="sm" icon="event" round color="primary">
-            <q-popup-proxy @before-show="updateProxy2" cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="proxyDate2">
-                <div class="row items-center justify-end q-gutter-sm">
-                  <q-btn label="Cancel" color="primary" flat v-close-popup />
-                  <q-btn label="OK" color="primary" flat @click="save2" v-close-popup />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-btn>
+
+        <div class="center" v-else>
+          <q-btn @click="toggleCreateStay" flat color="primary" label="+ Manually create stay" v-if="editTab" />
         </div>
-        
-        <div v-else>
-          <q-toggle
-        class="text-h6"
-        color="secondary"
-        v-model="endDateToggle"
-        label="Checkout"
-        left-label
-        />
-        <span class="text-h6 faded">Currently staying</span>
+
+        <TabTwoCard v-for="stay in stays" :key="stay" :stay="stay" :editTab="editTab" @delete-event="deleteAction" />
+
       </div>
     </div>
-      
-      
-      <!-- <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" /> -->
-      <q-btn @click="saveHandler" flat rounded color="primary" label="save new stay" v-if="editTab" />
+    <div v-else class="text-h5 faded" style="text-align: center; position: relative; top: 25px; ">
+      No stay history!
     </div>
-    
-    <div class="center" v-else>
-      <q-btn @click="toggleCreateStay" flat color="primary" label="+ Manually create stay" v-if="editTab" />
-    </div>
-    
-    <TabTwoCard v-for="stay in stays" :key="stay" :stay="stay" :editTab="editTab" @delete-event="deleteAction" />
-    
   </div>
-  </template>
+</template>
 
 
 

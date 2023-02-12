@@ -35,10 +35,10 @@
           Swal.fire({
             title: 'Resident Id not found',
             confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Back to residents page'
+            confirmButtonText: 'Darn'
           });
-          $router.push({ name: 'residents' });
           console.log('ERROR IN RESIDENT PROFILE COMPONENT: ', err);
+          $router.push({ name: 'residents' });
         });
 
       watch(() => resident.value, () => {
@@ -47,6 +47,19 @@
         age.value = Math.abs(ageDate.getUTCFullYear() - 1970);
       });
 
+      function moveNullCheckoutToTop(array) {
+        let nullCheckoutIndex = -1;
+        for (let i = 0; i < array.length; i++) {
+          if (!array[i].checkoutDate) {
+            nullCheckoutIndex = i;
+            break;
+          }
+        }
+        if (nullCheckoutIndex !== -1) {
+          const nullCheckout = array.splice(nullCheckoutIndex, 1)[0];
+          array.unshift(nullCheckout);
+        }
+      }
 
       function getCheckins() {
         isLoading.value = true;
@@ -59,6 +72,7 @@
           .then(res => {
             isLoading.value = false;
             checkins.value = res.data;
+            moveNullCheckoutToTop(checkins.value);
             if (checkins.value.length === 0) {
               isStaying.value = false;
             } else {
@@ -121,6 +135,7 @@
         })
           .then(() => {
             isLoading.value = false;
+            getCheckins();
           })
           .catch(err => {
             isLoading.value = false;
@@ -178,7 +193,7 @@
         const date = new Date(dateStr);
         const diffTime = today.getTime() - date.getTime();
         const diffDays = diffTime / (1000 * 60 * 60 * 24);
-        daysSince.value = Math.floor(diffDays);
+        daysSince.value = Math.floor(diffDays) + 1;
       }
       watch(() => checkins.value, () => {
         if (isStaying.value) {
@@ -201,21 +216,12 @@
               $feathersClient.service('residents').remove(props.userId)
                 .then(() => {
                   Swal.fire({
-                    title: 'Resident Id not found',
+                    title: 'Resident Records have been removed',
                     confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'Back to residents page'
+                    confirmButtonText: 'RIP'
                   });
+                  removeStayRecords();
                   $router.push({ name: 'residents' });
-                  // $feathersClient.service('checkins').remove(null, {
-                  //   query: {residentId: props.userId}
-                  // })
-                  //   .then((res) => {
-                  //     console.log('REMOVED RESIDENT AND CHECKINS: ', res);
-                  //     $router.push({name: 'residents'});
-                  //   })
-                  //   .catch((err) => {
-                  //     console.error('ERROR REMOVING RESIDENT CHECKINS: ', err);
-                  //   });
                 })
                 .catch((err) => {
                   console.error('ERROR DELETING RESIDENT: ', err);
@@ -225,6 +231,20 @@
           .catch((err) => {
             console.error('ERROR IN RESIDENT PROFILE', err);
           });
+      }
+
+      async function removeStayRecords() {
+        let allCheckins = await $feathersClient.service('checkins').find({
+          query: {residentId: props.userId}
+        });
+        console.log(allCheckins);
+        let deletedCount = 0;
+        for (let i = 0; i < checkins.value.length; i++) {
+          let deleted = await $feathersClient.service('checkins').remove(allCheckins.data[i]._id);
+          console.log(deleted);
+          deletedCount++;
+        }
+        console.log(`deleted ${deletedCount} records`);
       }
 
 
@@ -245,19 +265,21 @@
         daysSince,
         showWarningMessage,
         handleDeleteResident,
+        removeStayRecords,
         toggleShowWarning() {
           showWarningMessage.value = false;
         }
       };
     },
   };
-
 </script>
 
 
 
 <template>
   <div class="page-div">
+    <RouterLink class="back-link" to="/residents">Back to Residents page</RouterLink>
+    
     <div class="text-h3 warning-div" v-if="isStaying && showWarningMessage && daysSince >= 7">
       Resident is overdue for check out!
       <q-btn @click="toggleShowWarning" flat color="white" label="dismiss" />
@@ -266,16 +288,22 @@
     <q-card class="q-card my-card">
       <q-card-section class="spread">
         <div>
-          <div class="text-h3 bold">{{ resident.name }} <q-btn @click="handleDeleteResident" flat color="red"
-              icon="delete" /></div>
+          <div class="flex-row">
+            <q-icon v-if="resident.gender === 'Male'" color="blue" name="man" size="md" />
+            <q-icon v-else name="woman" color="purple" size="md" />
+            <div class="text-h3 bold">{{ resident.name }}
+              <q-btn @click="handleDeleteResident" flat color="red" icon="delete" />
+            </div>
+          </div>
           <div style="margin-left: 15px;">
-            <div class="text-subtitle1">{{ resident.gender }}</div>
+            <!-- <div class="text-subtitle1">{{ resident.gender }}</div> -->
+
             <div class="text-subtitle1">{{ age }} years old</div>
           </div>
         </div>
         <div class="stay-div" v-if="isStaying === true">
           <div class="text-h5 green-text" style="margin-top: 5px;">Currently checked in</div>
-          <div class="text-h6" v-if="daysSince < 6">Day <span class="red-text">{{ daysSince }}</span> of stay</div>
+          <div class="text-h6" v-if="daysSince < 6">Day <span class="green-text">{{ daysSince }}</span> of stay</div>
           <div class="text-h6" v-if="daysSince >= 6 && daysSince < 8">Day <span class="red-text">{{ daysSince }}</span>
             of stay</div>
           <div class="text-h6" v-if="daysSince >= 8">
@@ -327,17 +355,23 @@
   padding: 15px;
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
 .page-div {
   display: flex;
   flex-direction: column;
   gap: 15px;
   align-items: center;
+  position: relative;
 }
 
 .q-card {
   min-width: 300px;
-  width: 650px;
-  overflow: auto;
 }
 
 .bottom-btn-section {
@@ -370,5 +404,13 @@
 .red-text {
   color: red;
   font-weight: bold;
+}
+
+.back-link {
+  position: absolute;
+  top: -35px;
+  left: 0px;
+  z-index: 5;
+  color: #1876D1;
 }
 </style>
