@@ -75,7 +75,7 @@
           gender: genderInput.value,
           illnesses: illnessesInput.value,
           medications: medicationsInput.value,
-          notes: [notesInput.value],
+          notes: notesInput.value,
         })
           .then((res) => {
             router.push({ name: 'residentProfilePage', params: { id: res._id } });
@@ -230,7 +230,11 @@
               use-chips multiple input-debounce="0" @new-value="createValue" :options="medicationFilterOptions"
               @filter="medicationsFilterFn" style="width: 250px" />
 
-            <q-input standout="bg-secondary text-white" autogrow v-model="notesInput" label="Notes" />
+            <!-- <q-input standout="bg-secondary text-white" autogrow v-model="notesInput" label="Notes" /> -->
+
+            <q-select label="Add notes" standout="bg-secondary text-white" v-model="notesInput" use-input
+              use-chips autogrow multiple hide-dropdown-icon input-debounce="0" @new-value="createValue"
+              style="width: 250px" />
 
           </div>
         </q-form>

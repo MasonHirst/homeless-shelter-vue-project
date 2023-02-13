@@ -49,14 +49,15 @@
 
 <template>
   <div class="" v-if="residents">
-    <q-input standout="bg-secondary text-white" style="margin-bottom: 15px;" v-model="searchStr" label="search">
+    <q-input autofocus standout="bg-secondary text-white" style="margin-bottom: 15px; min-width: 400px;" v-model="searchStr" label="search">
       <template v-slot:prepend>
         <q-icon name="person" />
       </template>
     </q-input>
-    <div class="flex-col">
+    <div class="flex-col" v-if="filteredResidents.length > 0">
       <ResidentListCard v-for="resident in filteredResidents" :key="resident" :resident="resident" />
     </div>
+    <span class="text-h6 faded" style="margin-left: 25px;" v-else>No results</span>
   </div>
   <div v-else>
     <span class="text-h6 faded">No resident records yet!</span>

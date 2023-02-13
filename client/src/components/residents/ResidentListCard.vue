@@ -86,12 +86,14 @@
           </div>
           <div class="text-h5 bold">{{ residentObj.name }}</div>
         </div>
-        <div class="dotted-line" v-if="isStaying" />
-        <div v-if="isStaying" class="text-subtitle red-text">Checked in</div>
+        <!-- <div class="dotted-line" v-if="isStaying" /> -->
+        <div v-if="isStaying" style="margin-left: 15px;" class="text-subtitle red-text">Checked in</div>
       </div>
       <div class="text-subtitle1">
-        <span class="faded">Birthday: </span>
-        <span>{{ formatDate(residentObj.birthday) }}</span>
+        <div>
+          <span class="faded">Birthday: </span>
+          <span>{{ formatDate(residentObj.birthday) }}</span>
+        </div>
       </div>
     </div>
   </q-btn>

@@ -3,6 +3,7 @@
   import Swal from 'sweetalert2';
 
   export default {
+    emits: ['deleteEvent'],
     props: {
       stay: Object,
       editTab: Boolean,
