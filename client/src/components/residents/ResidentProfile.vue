@@ -247,6 +247,10 @@
         console.log(`deleted ${deletedCount} records`);
       }
 
+      function handleGoBack() {
+        $router.go(-1);
+      }
+
 
       return {
         tab,
@@ -266,6 +270,7 @@
         showWarningMessage,
         handleDeleteResident,
         removeStayRecords,
+        handleGoBack,
         toggleShowWarning() {
           showWarningMessage.value = false;
         }
@@ -278,9 +283,9 @@
 
 <template>
   <div class="page-div">
-    <RouterLink class="back-link" to="/residents">Back to Residents page</RouterLink>
+    <button @click="handleGoBack" class="back-link">back</button>
     
-    <div class="text-h3 warning-div" v-if="isStaying && showWarningMessage && daysSince >= 7">
+    <div class="text-h3 warning-div" v-if="isStaying && showWarningMessage && daysSince >= 8">
       Resident is overdue for check out!
       <q-btn @click="toggleShowWarning" flat color="white" label="dismiss" />
     </div>
@@ -295,9 +300,7 @@
               <q-btn @click="handleDeleteResident" flat color="red" icon="delete" />
             </div>
           </div>
-          <div style="margin-left: 15px;">
-            <!-- <div class="text-subtitle1">{{ resident.gender }}</div> -->
-
+          <div style="margin-left: 9px;">
             <div class="text-subtitle1">{{ age }} years old</div>
           </div>
         </div>
@@ -409,8 +412,14 @@
 .back-link {
   position: absolute;
   top: -35px;
-  left: 0px;
+  left: -6px;
   z-index: 5;
   color: #1876D1;
+  text-decoration: underline;
+  background-color: transparent;
+  border: none;
+}
+.back-link:hover {
+  cursor: pointer;
 }
 </style>

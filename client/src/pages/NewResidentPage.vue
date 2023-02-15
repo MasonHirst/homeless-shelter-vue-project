@@ -24,7 +24,7 @@
 .page {
   display: flex;
   justify-content: center;
-  padding-top: 50px;
+  padding-top: 25px;
 }
   
 </style>

@@ -20,7 +20,6 @@
           year: 'numeric',
         });
       }
-      
 
       return {
         residentRef,
@@ -34,38 +33,43 @@
 <template>
   <div class="overflow relative">
     
-    <div class="absolute-top-right flex-col">
-      <span class="text-h6">Gender: <span class="text-subtitle1 faded">{{ residentRef.gender }}</span></span>
-     
-      <span class="text-h6">Birthday: <span class="text-subtitle1 faded">{{ formatDate(residentRef.birthday) }}</span></span>
-      
+    <div style="margin-bottom: 5px;">
+      <span class="bold text-h6">Gender: </span>
+      <span class="text-subtitle1 faded">{{ residentRef.gender }}</span>
+    </div>
+    <div style="margin-bottom: 5px;">
+      <span class="bold text-h6">Birthday: </span>
+      <span class="text-subtitle1 faded">{{ formatDate(residentRef.birthday) }}</span>
     </div>
 
     <div v-if="residentRef.illnesses !== null" >
-      <p class="bold text-h6">Illnesses</p>
-      <ul dense bordered padding class="rounded-borders">
+      <p style="margin: 0;" class="bold text-h6">Illnesses</p>
+      <ul dense bordered padding class="rounded-borders" style="margin: 0; margin-bottom: 15px;">
         <li v-for="illness in residentRef.illnesses" :key="illness" >{{ illness }}</li>
       </ul>
     </div>
     <div class="text-h6" v-else >Illnesses: <span style="opacity: .5;">none</span></div>
     
     <div v-if="residentRef.medications !== null">
-      <p class="bold text-h6">Medications</p>
-      <ul dense bordered padding class="rounded-borders">
-        <li v-for="medication in residentRef.medications" :key="medication" >{{ medication }}</li>
+      <p class="bold text-h6" style="margin: 0;">Medications</p>
+      <ul dense bordered padding class="rounded-borders" style="margin: 0; margin-bottom: 15px;">
+        <li style="margin: 0px;" v-for="medication in residentRef.medications" :key="medication" >{{ medication }}</li>
       </ul>
     </div>
     <div class="text-h6" v-else>Medications: <span style="opacity: .5;">none</span></div>
     
-    <div v-if="residentRef.notes">
-      <div v-if="residentRef.notes[0] !== null">
-        <p class="bold text-h6">Notes</p>
-        <ul dense bordered padding class="rounded-borders">
+    <div v-if="typeof residentRef.notes === Array">
+      <div v-if="residentRef.notes.length > 0">
+        <p style="margin: 0;" class="bold text-h6">Notes</p>
+        <ul dense bordered padding class="rounded-borders" style="margin: 0; margin-bottom: 15px;">
           <li v-for="note in residentRef.notes" :key="note" >{{ note }}</li>
         </ul>
       </div>
 
-      <div class="text-h6" v-else>Notes: <span style="opacity: .5;">none</span></div>
+    </div>
+    <div class="text-h6" v-else>
+      <span class="bold">Notes: </span>
+      <span style="opacity: .5;">none</span>
     </div>
   </div>
 </template>

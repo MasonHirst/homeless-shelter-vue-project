@@ -195,7 +195,7 @@
 
             <div class="top-inputs-container">
 
-              <q-input :rules="[val => !!val || 'Field is required']" standout="bg-secondary text-white"
+              <q-input :rules="[val => !!val || 'Field is required']" autofocus standout="bg-secondary text-white"
                 v-model="nameInput" label="Name" />
 
               <div class="input-datepicker-div">

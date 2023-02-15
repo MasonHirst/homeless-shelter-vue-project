@@ -165,7 +165,7 @@
 
 <template>
   <div class="overflow">
-    <div v-if="stays.length > 0">
+    <div v-if="stays.length > 0 || editTab">
       <div class="center">
         <div class="gap border" v-if="createStay && editTab">
           <q-btn @click="editHandler" flat rounded color="primary" label="cancel" v-if="editTab" />

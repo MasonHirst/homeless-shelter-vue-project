@@ -22,9 +22,10 @@ When or if they have checked out
 Requirements
 
 Create a service(s) that stores this information
-Add a feature to create and edit people
+Add a feature to create and edit people **
 Allow users to search through people
 Add a feature to your app that will check in and out a person
 Allow users to search through a person's check in(s) and out(s)
-Display who needs to be checked out
-Display who cannot be checked in
+Display who needs to be checked out **
+Display who cannot be checked in **
+
