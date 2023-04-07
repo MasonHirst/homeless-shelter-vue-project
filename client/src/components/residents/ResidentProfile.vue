@@ -173,10 +173,6 @@
         });
       }
 
-      function toggleEdit1() {
-        editTabOne.value = !editTabOne.value;
-      };
-
       function toggleEdit2() {
         editTabTwo.value = !editTabTwo.value;
       };
@@ -251,6 +247,10 @@
         $router.go(-1);
       }
 
+      function handleEditProfile() {
+        $router.push({ name: 'newResident', params: { id: props.userId, isNew: false } });
+      }
+
 
       return {
         tab,
@@ -263,7 +263,6 @@
         checkins,
         editTabOne,
         editTabTwo,
-        toggleEdit1,
         toggleEdit2,
         deleteEvent,
         daysSince,
@@ -271,6 +270,7 @@
         handleDeleteResident,
         removeStayRecords,
         handleGoBack,
+        handleEditProfile,
         toggleShowWarning() {
           showWarningMessage.value = false;
         }
@@ -317,7 +317,7 @@
         <div class="text-h5 green-text" style="margin-top: 5px;" v-else>Not currently staying</div>
       </q-card-section>
 
-      <q-tabs v-model="tab" class="text-teal">
+      <q-tabs v-model="tab" align="justify" class="text-teal">
         <q-tab label="Resident Info" name="one" />
         <q-tab label="stay history" name="two" />
       </q-tabs>
@@ -336,7 +336,7 @@
       </q-tab-panels>
       <q-separator />
       <q-card-section class="bottom-btn-section">
-        <q-btn @click="toggleEdit1" color="secondary" label="Edit Profile" v-if="tab === 'one'" />
+        <q-btn @click="handleEditProfile" color="secondary" label="Edit Profile" v-if="tab === 'one'" />
         <div v-else>
           <q-btn @click="toggleEdit2" color="secondary" label="Edit stay history" v-if="!editTabTwo" />
           <q-btn @click="toggleEdit2" color="secondary" label="Stop editing" v-else />

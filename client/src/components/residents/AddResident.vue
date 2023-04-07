@@ -1,6 +1,6 @@
 <script>
   import { defineComponent, ref, inject } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { useQuasar } from 'quasar';
   import Swal from 'sweetalert2';
 
@@ -11,6 +11,9 @@
     setup() {
       let $feathersClient = inject('$feathersClient');
       let router = useRouter();
+      let route = useRoute();
+      // const idParam = ref(route.params.id);
+      const isNew = ref(route.params.isNew);
       let options = ['Male', 'Female'];
       let genderInput = ref(null);
       let nameInput = ref(null);
@@ -28,6 +31,17 @@
       const medicationOptions = ref([]);
       const medicationFilterOptions = ref([]);
 
+      if (!isNew.value) {
+        console.log('is new');
+        // $feathersClient.service('residents').get(idParam)
+        //   .then((res) => {
+        //     console.log('res: ', res);
+        //   })
+        //   .catch(err => {
+        //     console.error('ERROR IN THE ADD RESIDENT: ', err);
+        //   });
+      }
+
       function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-GB', {
@@ -40,13 +54,11 @@
       function lastMonthDate(date, sub) {
         const newDate = new Date(date);
         newDate.setMonth(newDate.getMonth() - sub);
-
         const options = {
           day: 'numeric',
           month: 'short',
           year: 'numeric'
         };
-
         return newDate.toLocaleDateString('en-GB', options);
       }
 
@@ -129,6 +141,10 @@
         });
       }
 
+      function handleCancel() {
+        router.go(-1);
+      }
+
       return {
         useQuasar,
         options,
@@ -150,6 +166,7 @@
         filterOptions,
         medicationFilterOptions,
         medicationOptions,
+        handleCancel,
 
         updateProxy() {
           proxyDate.value = formatDate(date.value);
@@ -232,9 +249,8 @@
 
             <!-- <q-input standout="bg-secondary text-white" autogrow v-model="notesInput" label="Notes" /> -->
 
-            <q-select label="Add notes" standout="bg-secondary text-white" v-model="notesInput" use-input
-              use-chips autogrow multiple hide-dropdown-icon input-debounce="0" @new-value="createValue"
-              style="width: 250px" />
+            <q-select label="Add notes" standout="bg-secondary text-white" v-model="notesInput" use-input use-chips
+              autogrow multiple hide-dropdown-icon input-debounce="0" @new-value="createValue" style="width: 250px" />
 
           </div>
         </q-form>
@@ -243,9 +259,7 @@
       <q-separator />
 
       <q-card-actions>
-        <RouterLink style="text-decoration: none; height: 23px;" to="/residents">
-          <q-btn flat dense style="color: black;" label="cancel" />
-        </RouterLink>
+          <q-btn @click="handleCancel" flat dense style="color: black;" label="cancel" />
         <q-space />
 
         <q-btn color="primary" @click="handleSubmit">
