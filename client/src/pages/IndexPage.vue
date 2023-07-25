@@ -37,10 +37,6 @@
         return Math.floor(diffDays) + 1;
       }
       
-      // watch(() => dueCheckouts, () => {
-      //   console.log('dueCheckouts: ', dueCheckouts.value);
-      // });
-      
       return {
         activeStays,
         dueCheckouts,
